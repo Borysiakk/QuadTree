@@ -24,13 +24,13 @@ public:
 	using ArrayQuadTree = std::array<Ptr, DefaultNodes>;
 	using ObjectsQuadTree = std::vector<Object*>;
 
-	QuadTree(Object * Obj,std::vector<QuadTree*> & ListNode);
+	QuadTree(sf::IntRect Bounds,std::vector<QuadTree*> & ListNode);
 
 private:
 	bool isNodeTree();
 	void BalancedQuadTree();
 	void CreateArrayChildren();
-	IntersectsType intersects(sf::IntRect rect);
+	IntersectsType intersects(Object * Obj);
 
 	sf::IntRect mBounds;
 	ArrayQuadTree mChildren;
