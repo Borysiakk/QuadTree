@@ -35,6 +35,7 @@ private:
 	IntersectsType intersects(Object * Obj);
 
 	std::vector<QuadTree*> & mListNode;
+	sf::RectangleShape rectangle;
 	ObjectsQuadTree mObjects;
 	ArrayQuadTree mChildren;
 	sf::IntRect mBounds;

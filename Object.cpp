@@ -3,6 +3,7 @@
 Object::Object(sf::Vector2f Position, sf::Vector2f Size) :rectangle(Size)
 {
 	setPosition(Position);
+	rectangle.setFillColor(sf::Color::Blue);
 }
 
 const sf::Vector2f & Object::getSize()
