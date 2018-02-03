@@ -2,6 +2,11 @@
 
 QuadTree::QuadTree(sf::IntRect Bounds, std::vector<QuadTree*> & ListNode):mBounds(Bounds),mListNode(ListNode)
 {
+	rectangle.setPosition(mBounds.left, mBounds.top);
+	rectangle.setSize(sf::Vector2f(mBounds.width, mBounds.height));
+	rectangle.setFillColor(sf::Color::Transparent);
+	rectangle.setOutlineColor(sf::Color::Black);
+	rectangle.setOutlineThickness(-0.5f);
 	mListNode.push_back(this);
 }
 
@@ -15,16 +20,39 @@ void QuadTree::insert(Object * object)
 		{
 			if (root->mObjects.size() >= 2)
 			{
-
+				root->mObjects.push_back(object);
+				root->CreateArrayChildren();
+				root->BalancedQuadTree();
+				end = true;
 			}
 			else
 			{
-
+				root->mObjects.push_back(object);
+				end = true;
 			}
 		}
 		else
 		{
-
+			IntersectsType type = intersects(object);
+			switch (type)
+			{
+			case IntersectsType::None:
+				root->mObjects.push_back(object);
+				end = true;
+				break;
+			case IntersectsType::NorthWest:
+				root = root->mChildren[0].get();
+				break;
+			case IntersectsType::NorthEast:
+				root = root->mChildren[1].get();
+				break;
+			case IntersectsType::SouthWest:
+				root = root->mChildren[2].get();
+				break;
+			case IntersectsType::SouthEast:
+				root = root->mChildren[3].get();
+				break;
+			}
 		}
 	}
 }
@@ -33,7 +61,7 @@ void QuadTree::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
 	for (auto & node : mListNode)
 	{
-		target.draw(*node);
+		target.draw(node->rectangle);
 		for (auto & obj : node->mObjects)
 		{
 			target.draw(*obj);
