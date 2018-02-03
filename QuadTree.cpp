@@ -1,4 +1,5 @@
 ﻿#include "QuadTree.hpp"
+#include <iostream>
 
 QuadTree::QuadTree(sf::IntRect Bounds, std::vector<QuadTree*> & ListNode):mBounds(Bounds),mListNode(ListNode)
 {
@@ -33,25 +34,35 @@ void QuadTree::insert(Object * object)
 		}
 		else
 		{
-			IntersectsType type = intersects(object);
+			IntersectsType type = root->intersects(object);
 			switch (type)
 			{
 			case IntersectsType::None:
+			{
 				root->mObjects.push_back(object);
 				end = true;
 				break;
+			}
 			case IntersectsType::NorthWest:
+			{
 				root = root->mChildren[0].get();
 				break;
+			}
 			case IntersectsType::NorthEast:
+			{
 				root = root->mChildren[1].get();
 				break;
+			}
 			case IntersectsType::SouthWest:
+			{
 				root = root->mChildren[2].get();
 				break;
+			}
 			case IntersectsType::SouthEast:
+			{
 				root = root->mChildren[3].get();
 				break;
+			}
 			}
 		}
 	}
@@ -77,10 +88,12 @@ bool QuadTree::isNodeTree()
 
 void QuadTree::BalancedQuadTree()
 {
+	//std::cout << "--------\n";
 	ObjectsQuadTree Objects = std::move(mObjects);
 	for (auto & obj : Objects)
 	{
 		IntersectsType type = intersects(obj);
+		//std::cout << static_cast<int>(type) << "\n";
 		switch (type)
 		{
 		case IntersectsType::None:
@@ -173,5 +186,9 @@ IntersectsType QuadTree::intersects(Object * Obj)
 		{
 			return IntersectsType::NorthWest;
 		}
+	}
+	else
+	{
+		return IntersectsType::None;
 	}
 }

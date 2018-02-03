@@ -26,9 +26,9 @@ public:
 
 	QuadTree(sf::IntRect Bounds,std::vector<QuadTree*> & ListNode);
 	void insert(Object * object);
-protected:
+
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-private:
+
 	bool isNodeTree();
 	void BalancedQuadTree();
 	void CreateArrayChildren();
