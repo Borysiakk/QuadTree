@@ -5,6 +5,42 @@ QuadTree::QuadTree(sf::IntRect Bounds, std::vector<QuadTree*> & ListNode):mBound
 	mListNode.push_back(this);
 }
 
+void QuadTree::insert(Object * object)
+{
+	bool end = false;
+	QuadTree * root = this;
+	while (!end)
+	{
+		if (root->isNodeTree() == false)
+		{
+			if (root->mObjects.size() >= 2)
+			{
+
+			}
+			else
+			{
+
+			}
+		}
+		else
+		{
+
+		}
+	}
+}
+
+void QuadTree::draw(sf::RenderTarget & target, sf::RenderStates states) const
+{
+	for (auto & node : mListNode)
+	{
+		target.draw(*node);
+		for (auto & obj : node->mObjects)
+		{
+			target.draw(*obj);
+		}
+	}
+}
+
 bool QuadTree::isNodeTree()
 {
 	if (mChildren[0] != nullptr)return true;

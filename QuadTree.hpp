@@ -16,7 +16,7 @@ enum class IntersectsType
 	SouthEast,																	
 };
 
-class QuadTree
+class QuadTree:public sf::Drawable
 {
 public:
 	static const auto DefaultNodes = 4u;
@@ -25,16 +25,18 @@ public:
 	using ObjectsQuadTree = std::vector<Object*>;
 
 	QuadTree(sf::IntRect Bounds,std::vector<QuadTree*> & ListNode);
-
+	void insert(Object * object);
+protected:
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 private:
 	bool isNodeTree();
 	void BalancedQuadTree();
 	void CreateArrayChildren();
 	IntersectsType intersects(Object * Obj);
 
-	sf::IntRect mBounds;
-	ArrayQuadTree mChildren;
-	ObjectsQuadTree mObjects;
 	std::vector<QuadTree*> & mListNode;
+	ObjectsQuadTree mObjects;
+	ArrayQuadTree mChildren;
+	sf::IntRect mBounds;
 };
 
