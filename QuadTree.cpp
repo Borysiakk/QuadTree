@@ -17,52 +17,29 @@ void QuadTree::insert(Object * object)
 	QuadTree * root = this;
 	while (!end)
 	{
-		if (root->isNodeTree() == false)
+		if (root->isNodeTree() == true)
+		{
+			IntersectsType type = root->intersects(object);
+			if (type != IntersectsType::None) root = root->mChildren[static_cast<int>(type)].get();
+			else root->mObjects.push_back(object);
+		}
+		else
 		{
 			if (root->mObjects.size() >= 2)
 			{
 				root->mObjects.push_back(object);
 				root->CreateArrayChildren();
-				root->BalancedQuadTree();
+				for (auto & obj : root->mObjects)
+				{
+					root->insert(obj);
+				}
+				root->mObjects.clear();
 				end = true;
 			}
 			else
 			{
 				root->mObjects.push_back(object);
 				end = true;
-			}
-		}
-		else
-		{
-			IntersectsType type = root->intersects(object);
-			switch (type)
-			{
-			case IntersectsType::None:
-			{
-				root->mObjects.push_back(object);
-				end = true;
-				break;
-			}
-			case IntersectsType::NorthWest:
-			{
-				root = root->mChildren[0].get();
-				break;
-			}
-			case IntersectsType::NorthEast:
-			{
-				root = root->mChildren[1].get();
-				break;
-			}
-			case IntersectsType::SouthWest:
-			{
-				root = root->mChildren[2].get();
-				break;
-			}
-			case IntersectsType::SouthEast:
-			{
-				root = root->mChildren[3].get();
-				break;
-			}
 			}
 		}
 	}
@@ -86,45 +63,6 @@ bool QuadTree::isNodeTree()
 	else return false;
 }
 
-void QuadTree::BalancedQuadTree()
-{
-	//std::cout << "--------\n";
-	ObjectsQuadTree Objects = std::move(mObjects);
-	for (auto & obj : Objects)
-	{
-		IntersectsType type = intersects(obj);
-		//std::cout << static_cast<int>(type) << "\n";
-		switch (type)
-		{
-		case IntersectsType::None:
-		{
-			mObjects.push_back(obj);
-			break;
-		}
-		case IntersectsType::NorthWest:
-		{
-			mChildren[0]->mObjects.push_back(obj);
-			break;
-		}
-		case IntersectsType::NorthEast:
-		{
-			mChildren[1]->mObjects.push_back(obj);
-			break;
-		}
-		case IntersectsType::SouthWest:
-		{
-			mChildren[2]->mObjects.push_back(obj);
-			break;
-		}
-		case IntersectsType::SouthEast:
-		{
-			mChildren[3]->mObjects.push_back(obj);
-			break;
-		}
-		}
-	}
-}
-
 void QuadTree::CreateArrayChildren()
 {
 	int Width = mBounds.width / 2;
@@ -137,6 +75,8 @@ void QuadTree::CreateArrayChildren()
 	mChildren[2] = std::make_unique<QuadTree>(sf::IntRect(mBounds.left, MiddleY, Width, Height), mListNode);
 	mChildren[3] = std::make_unique<QuadTree>(sf::IntRect(MiddleX, MiddleY, Width, Height), mListNode);
 }
+
+
 
 IntersectsType QuadTree::intersects(Object * Obj)
 {

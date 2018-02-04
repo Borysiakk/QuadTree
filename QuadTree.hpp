@@ -7,13 +7,13 @@
 
 #include "Object.hpp"
 
-enum class IntersectsType
+enum class IntersectsType :int
 {
-	None,
-	NorthWest,							  	 									
-	NorthEast,																
-	SouthWest,																	
-	SouthEast,																	
+	None      = -1,
+	NorthWest =  0,							  	 									
+	NorthEast =  1,																
+	SouthWest =  2,																	
+	SouthEast =  3,																	
 };
 
 class QuadTree:public sf::Drawable
@@ -30,7 +30,6 @@ public:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 	bool isNodeTree();
-	void BalancedQuadTree();
 	void CreateArrayChildren();
 	IntersectsType intersects(Object * Obj);
 
