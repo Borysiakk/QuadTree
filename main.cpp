@@ -1,27 +1,26 @@
 #include "QuadTree.hpp"
 #include "Object.hpp"
 #include <iostream>
+#include <random>
 int main()
 {
+	std::random_device r;
+	std::default_random_engine e1(r());
+
 	std::vector<QuadTree*> mNodeList;
 	QuadTree Quad(sf::IntRect(0,0,800,600),mNodeList);
-	Quad.insert(new Object(sf::Vector2f(10,10), sf::Vector2f(5,5)));
-	Quad.insert(new Object(sf::Vector2f(50,10), sf::Vector2f(5, 5)));
-	Quad.insert(new Object(sf::Vector2f(150, 10), sf::Vector2f(5, 5)));
-	Quad.insert(new Object(sf::Vector2f(180, 10), sf::Vector2f(5, 5)));
-	Quad.insert(new Object(sf::Vector2f(250, 10), sf::Vector2f(5, 5)));
+	for (int i = 0; i < 100; i++)
+	{
+		std::uniform_int_distribution<int> a(1, 800);
+		std::uniform_int_distribution<int> b(1, 600);
+		int x = a(e1);
+		int y = b(e1);
 
-	Quad.insert(new Object(sf::Vector2f(100, 500), sf::Vector2f(5, 5)));
-	Quad.insert(new Object(sf::Vector2f(300, 550), sf::Vector2f(5, 5)));
-	Quad.insert(new Object(sf::Vector2f(320, 500), sf::Vector2f(5, 5)));
-
-	Quad.insert(new Object(sf::Vector2f(500, 350), sf::Vector2f(5, 5)));
-	Quad.insert(new Object(sf::Vector2f(520, 350), sf::Vector2f(5, 5)));
-
-	Quad.insert(new Object(sf::Vector2f(500, 200), sf::Vector2f(5, 5)));
+		Quad.insert(std::make_shared<Object>(sf::Vector2f(x, y), sf::Vector2f(5, 5)));
+	}
 
 	sf::RenderWindow window(sf::VideoMode(800, 600), "QuadTree Borysiak");
-
+	window.setFramerateLimit(60);
 	while (window.isOpen())
 	{
 		sf::Event event;
