@@ -11,7 +11,57 @@ QuadTree::QuadTree(sf::IntRect Bounds, std::vector<QuadTree*> & ListNode):mBound
 	mListNode.push_back(this);
 }
 
-void QuadTree::insert(Object * object)
+void QuadTree::insert(Object::Ptr Object)
+{
+	bool end = false;
+	QuadTree * root = this;
+	ObjectsQuadTree ObjectTemp;
+	while (!end)
+	{
+		if (root->isNodeTree() == true)
+		{
+			IntersectsType type = root->intersects(Object->getBoundingBox());
+			if (type != IntersectsType::None)
+			{
+				root = root->mChildren[static_cast<int>(type)].get();
+			}
+			else
+			{
+				root->mObjects.push_back(Object);
+				end = true;
+			}
+		}
+		else
+		{
+			if (root->mObjects.size() >= 2)
+			{
+				root->mObjects.push_back(Object);
+				root->CreateArrayChildren();
+				for (auto & obj : root->mObjects)
+				{
+					auto type = root->intersects(obj->getBoundingBox());
+					if (type == IntersectsType::None)
+					{
+						ObjectTemp.push_back(obj);
+					}
+					else
+					{
+						root->insert(obj);
+					}
+				}
+				root->mObjects = std::move(ObjectTemp);
+				end = true;
+			}
+			else
+			{
+				root->mObjects.push_back(Object);
+				end = true;
+			}
+		}
+	}
+}
+
+void QuadTree::getElement(sf::FloatRect rect)
 {
 	bool end = false;
 	QuadTree * root = this;
@@ -19,28 +69,30 @@ void QuadTree::insert(Object * object)
 	{
 		if (root->isNodeTree() == true)
 		{
-			IntersectsType type = root->intersects(object);
-			if (type != IntersectsType::None) root = root->mChildren[static_cast<int>(type)].get();
-			else root->mObjects.push_back(object);
-		}
-		else
-		{
-			if (root->mObjects.size() >= 2)
+			auto type = root->intersects(rect);
+			if (type == IntersectsType::None)
 			{
-				root->mObjects.push_back(object);
-				root->CreateArrayChildren();
-				for (auto & obj : root->mObjects)
+				if (root->isNodeTree() == true)
 				{
-					root->insert(obj);
+					getElement(rect);
 				}
-				root->mObjects.clear();
-				end = true;
+				else
+				{
+					root->rectangle.setFillColor(sf::Color::Red);
+
+					end = true;
+				}
 			}
 			else
 			{
-				root->mObjects.push_back(object);
-				end = true;
+
+				root = root->mChildren[static_cast<int>(type)].get();
 			}
+		}
+		else
+		{
+			root->rectangle.setFillColor(sf::Color::Red);
+			end = true;
 		}
 	}
 }
@@ -78,10 +130,8 @@ void QuadTree::CreateArrayChildren()
 
 
 
-IntersectsType QuadTree::intersects(Object * Obj)
+IntersectsType QuadTree::intersects(sf::FloatRect rect)
 {
-	sf::FloatRect rect = sf::FloatRect(Obj->getPosition(),Obj->getSize());
-
 	int MiddleX = mBounds.left + (mBounds.width / 2);
 	int MiddleY = mBounds.top + (mBounds.height / 2);
 

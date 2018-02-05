@@ -2,8 +2,13 @@
 
 Object::Object(sf::Vector2f Position, sf::Vector2f Size) :rectangle(Size)
 {
-	setPosition(Position);
+	setPosition(sf::Vector2f(Position.x,Position.y));
 	rectangle.setFillColor(sf::Color::Blue);
+}
+
+const sf::FloatRect & Object::getBoundingBox()
+{
+	return sf::FloatRect(getPosition(), rectangle.getSize());
 }
 
 const sf::Vector2f & Object::getSize()
@@ -13,6 +18,5 @@ const sf::Vector2f & Object::getSize()
 
 void Object::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {
-	states.transform *= getTransform();
-	target.draw(rectangle,states);
+	target.draw(rectangle,getTransform());
 }
