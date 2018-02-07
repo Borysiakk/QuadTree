@@ -7,7 +7,7 @@ public:
 	using Ptr = std::shared_ptr<Object>;
 
 	Object(sf::Vector2f Position,sf::Vector2f Size);
-	const sf::FloatRect & getBoundingBox();
+	virtual sf::FloatRect getBoundingBox();
 	const sf::Vector2f & getSize();
 
 protected:

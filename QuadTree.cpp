@@ -61,54 +61,6 @@ void QuadTree::insert(Object::Ptr Object)
 	}
 }
 
-void QuadTree::getElement(sf::FloatRect rect)
-{
-	bool end = false;
-	QuadTree * root = this;
-	while (!end)
-	{
-		if (root->isNodeTree() == true)
-		{
-			auto type = root->intersects(rect);
-			if (type == IntersectsType::None)
-			{
-				if (root->isNodeTree() == true)
-				{
-					getElement(rect);
-				}
-				else
-				{
-					root->rectangle.setFillColor(sf::Color::Red);
-
-					end = true;
-				}
-			}
-			else
-			{
-
-				root = root->mChildren[static_cast<int>(type)].get();
-			}
-		}
-		else
-		{
-			root->rectangle.setFillColor(sf::Color::Red);
-			end = true;
-		}
-	}
-}
-
-void QuadTree::draw(sf::RenderTarget & target, sf::RenderStates states) const
-{
-	for (auto & node : mListNode)
-	{
-		target.draw(node->rectangle);
-		for (auto & obj : node->mObjects)
-		{
-			target.draw(*obj);
-		}
-	}
-}
-
 bool QuadTree::isNodeTree()
 {
 	if (mChildren[0] != nullptr)return true;
@@ -127,8 +79,6 @@ void QuadTree::CreateArrayChildren()
 	mChildren[2] = std::make_unique<QuadTree>(sf::IntRect(mBounds.left, MiddleY, Width, Height), mListNode);
 	mChildren[3] = std::make_unique<QuadTree>(sf::IntRect(MiddleX, MiddleY, Width, Height), mListNode);
 }
-
-
 
 IntersectsType QuadTree::intersects(sf::FloatRect rect)
 {
@@ -180,5 +130,42 @@ IntersectsType QuadTree::intersects(sf::FloatRect rect)
 	else
 	{
 		return IntersectsType::None;
+	}
+}
+
+QuadTree::ObjectsQuadTree QuadTree::getElement(sf::FloatRect rect)
+{
+	return find(this, rect)->mObjects;
+}
+
+QuadTree * QuadTree::find(QuadTree * root, sf::FloatRect & rect)
+{
+	if (root->isNodeTree() == true)
+	{
+		auto type = root->intersects(rect);
+		if (type == IntersectsType::None)
+		{
+			return root;
+		}
+		else
+		{
+			return find(root->mChildren[static_cast<int>(type)].get(), rect);
+		}
+	}
+	else
+	{
+		return root;
+	}
+}
+
+void QuadTree::draw(sf::RenderTarget & target, sf::RenderStates states) const
+{
+	for (auto & node : mListNode)
+	{
+		target.draw(node->rectangle);
+		for (auto & obj : node->mObjects)
+		{
+			target.draw(*obj);
+		}
 	}
 }

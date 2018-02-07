@@ -26,10 +26,11 @@ public:
 
 	QuadTree(sf::IntRect Bounds,std::vector<QuadTree*> & ListNode);
 	void insert(Object::Ptr Object);
-	void getElement(sf::FloatRect rect);
+	ObjectsQuadTree getElement(sf::FloatRect rect);
 protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 private:
+	QuadTree * find(QuadTree * root, sf::FloatRect & rect);
 	bool isNodeTree();
 	void CreateArrayChildren();
 	IntersectsType intersects(sf::FloatRect rect);

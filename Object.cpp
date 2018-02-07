@@ -6,7 +6,7 @@ Object::Object(sf::Vector2f Position, sf::Vector2f Size) :rectangle(Size)
 	rectangle.setFillColor(sf::Color::Blue);
 }
 
-const sf::FloatRect & Object::getBoundingBox()
+sf::FloatRect Object::getBoundingBox()
 {
 	return sf::FloatRect(getPosition(), rectangle.getSize());
 }
