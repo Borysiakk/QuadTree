@@ -2,20 +2,29 @@
 #include "Object.hpp"
 #include <iostream>
 #include <random>
+#include <SFML\Window.hpp>
 int main()
 {
-	std::random_device r;
-	std::default_random_engine e1(r());
 
 	std::vector<QuadTree*> mNodeList;
-	QuadTree Quad(sf::IntRect(0,0,800,600),mNodeList);
-	Quad.insert(std::make_shared<Object>(sf::Vector2f(5,5),sf::Vector2f(50,50)));
-	Quad.insert(std::make_shared<Object>(sf::Vector2f(740, 5), sf::Vector2f(50, 50)));
-	Quad.insert(std::make_shared<Object>(sf::Vector2f(740, 540), sf::Vector2f(50, 50)));
 
-	
-	Quad.insert(std::make_shared<Object>(sf::Vector2f(320, 290), sf::Vector2f(50, 50)));
-	Quad.insert(std::make_shared<Object>(sf::Vector2f(450, 290), sf::Vector2f(50, 50)));
+	QuadTree Quad(sf::FloatRect(0, 0, 800, 600), mNodeList);
+	Quad.Insert(std::make_shared<Object>(sf::Vector2f(5, 5), sf::Vector2f(5, 5)));
+	Quad.Insert(std::make_shared<Object>(sf::Vector2f(20, 20), sf::Vector2f(5, 5)));
+	Quad.Insert(std::make_shared<Object>(sf::Vector2f(46, 50), sf::Vector2f(5, 5)));
+	Quad.Insert(std::make_shared<Object>(sf::Vector2f(46, 40), sf::Vector2f(5, 5)));
+
+
+	std::cout << Quad.mObjects.size() << "\n";
+	std::cout << "Quad [0]\n";
+	std::cout << Quad.mChildren[0]->mObjects.size() << "\n";
+	std::cout << "Quad [0][0]\n";
+	//std::cout << Quad.mChildren[0]->mChildren[0]->mObjects.size() << "\n";
+	//std::cout << "Quad [0][0][0]\n";
+	//std::cout << Quad.mChildren[0]->mChildren[0]->mChildren[0]->mObjects.size() << "\n";
+	//std::cout << "Quad [0][0][0][0]\n";
+	//std::cout << Quad.mChildren[0]->mChildren[0]->mChildren[0]->mChildren[0]->mObjects.size() << "\n";
+
 
 
 
@@ -26,19 +35,8 @@ int main()
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::MouseButtonPressed)
-			{
-				if (event.type == sf::Event::MouseButtonPressed)
-				{
-					sf::Clock clock;
-					int size = Quad.getElement(sf::FloatRect(event.mouseButton.x, event.mouseButton.y, 5, 5)).size();
-					sf::Time elapsed2 = clock.getElapsedTime();
-					std::cout << "Ilosc kolizji do sprawdzenia : " << size << " Sprawdzone w czasie : "<<elapsed2.asMicroseconds()<<" Microseconds \n";
-					clock.restart();
-				}
-			}
-			if (event.type == sf::Event::Closed)
-				window.close();
+
+			if (event.type == sf::Event::Closed)window.close();
 		}
 
 		window.clear(sf::Color::White);

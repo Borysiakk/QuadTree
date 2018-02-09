@@ -24,21 +24,24 @@ public:
 	using ArrayQuadTree = std::array<Ptr, DefaultNodes>;
 	using ObjectsQuadTree = std::vector<Object::Ptr>;
 
-	QuadTree(sf::IntRect Bounds,std::vector<QuadTree*> & ListNode);
-	void insert(Object::Ptr Object);
-	ObjectsQuadTree getElement(sf::FloatRect rect);
-protected:
+	QuadTree(sf::FloatRect Bounds,std::vector<QuadTree*> & ListNode);
+	void Insert(Object::Ptr object);
+//protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-private:
-	QuadTree * find(QuadTree * root, sf::FloatRect & rect);
-	bool isNodeTree();
-	void CreateArrayChildren();
-	IntersectsType intersects(sf::FloatRect rect);
+//private:
+
+	void Partition();
+	void RemoveItem(int index);
+	void PushItemUp(int index);
+	bool PushItemDown(int index);
+	bool ContainsRect(sf::FloatRect rect);
+	bool InsertInChild(Object::Ptr object);
 
 	std::vector<QuadTree*> & mListNode;
 	sf::RectangleShape rectangle;
 	ObjectsQuadTree mObjects;
 	ArrayQuadTree mChildren;
-	sf::IntRect mBounds;
+	sf::FloatRect mBounds;
+	bool IsPartitioned;
 };
 

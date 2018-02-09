@@ -1,7 +1,7 @@
 ﻿#include "QuadTree.hpp"
 #include <iostream>
 
-QuadTree::QuadTree(sf::IntRect Bounds, std::vector<QuadTree*> & ListNode):mBounds(Bounds),mListNode(ListNode)
+QuadTree::QuadTree(sf::FloatRect Bounds, std::vector<QuadTree*> & ListNode):mBounds(Bounds),mListNode(ListNode),IsPartitioned(false)
 {
 	rectangle.setPosition(mBounds.left, mBounds.top);
 	rectangle.setSize(sf::Vector2f(mBounds.width, mBounds.height));
@@ -11,150 +11,88 @@ QuadTree::QuadTree(sf::IntRect Bounds, std::vector<QuadTree*> & ListNode):mBound
 	mListNode.push_back(this);
 }
 
-void QuadTree::insert(Object::Ptr Object)
+void QuadTree::Insert(Object::Ptr object)
 {
-	bool end = false;
-	QuadTree * root = this;
-	ObjectsQuadTree ObjectTemp;
-	while (!end)
+	if (!InsertInChild(object))
 	{
-		if (root->isNodeTree() == true)
+		mObjects.push_back(object);
+		if (!IsPartitioned && mObjects.size() > 3)
 		{
-			IntersectsType type = root->intersects(Object->getBoundingBox());
-			if (type != IntersectsType::None)
-			{
-				root = root->mChildren[static_cast<int>(type)].get();
-			}
-			else
-			{
-				root->mObjects.push_back(Object);
-				end = true;
-			}
-		}
-		else
-		{
-			if (root->mObjects.size() >= 2)
-			{
-				root->mObjects.push_back(Object);
-				root->CreateArrayChildren();
-				for (auto & obj : root->mObjects)
-				{
-					auto type = root->intersects(obj->getBoundingBox());
-					if (type == IntersectsType::None)
-					{
-						ObjectTemp.push_back(obj);
-					}
-					else
-					{
-						root->insert(obj);
-					}
-				}
-				root->mObjects = std::move(ObjectTemp);
-				end = true;
-			}
-			else
-			{
-				root->mObjects.push_back(Object);
-				end = true;
-			}
+			Partition();
 		}
 	}
 }
 
-bool QuadTree::isNodeTree()
-{
-	if (mChildren[0] != nullptr)return true;
-	else return false;
-}
-
-void QuadTree::CreateArrayChildren()
+void QuadTree::Partition()
 {
 	int Width = mBounds.width / 2;
 	int Height = mBounds.height / 2;
 	int MiddleX = mBounds.left + (mBounds.width / 2);
 	int MiddleY = mBounds.top + (mBounds.height / 2);
 
-	mChildren[0] = std::make_unique<QuadTree>(sf::IntRect(mBounds.left, mBounds.top, Width, Height), mListNode);
-	mChildren[1] = std::make_unique<QuadTree>(sf::IntRect(MiddleX, mBounds.top, Width, Height), mListNode);
-	mChildren[2] = std::make_unique<QuadTree>(sf::IntRect(mBounds.left, MiddleY, Width, Height), mListNode);
-	mChildren[3] = std::make_unique<QuadTree>(sf::IntRect(MiddleX, MiddleY, Width, Height), mListNode);
+	mChildren[0] = std::make_unique<QuadTree>(sf::FloatRect(mBounds.left, mBounds.top, Width, Height), mListNode);
+	mChildren[1] = std::make_unique<QuadTree>(sf::FloatRect(MiddleX, mBounds.top, Width, Height), mListNode);
+	mChildren[2] = std::make_unique<QuadTree>(sf::FloatRect(mBounds.left, MiddleY, Width, Height), mListNode);
+	mChildren[3] = std::make_unique<QuadTree>(sf::FloatRect(MiddleX, MiddleY, Width, Height), mListNode);
+	
+	IsPartitioned = true;
+
+	for (int i = 0;i<mObjects.size();i)
+	{
+		if (!PushItemDown(i))
+		{
+			i++;
+		}
+	}
 }
 
-IntersectsType QuadTree::intersects(sf::FloatRect rect)
+void QuadTree::RemoveItem(int index)
 {
-	int MiddleX = mBounds.left + (mBounds.width / 2);
-	int MiddleY = mBounds.top + (mBounds.height / 2);
+	mObjects.erase(mObjects.begin() + index);
+}
 
-	bool top = (rect.top + rect.height > MiddleY);
-	bool bottom = (rect.top < MiddleY);
-
-	bool right = (rect.left + rect.width > MiddleX);
-	bool left = (rect.left < MiddleX);
-
-	if (top == true && bottom == true)
+void QuadTree::PushItemUp(int index)
+{
+	if (InsertInChild(mObjects[index]))
 	{
-		return IntersectsType::None;
+		mObjects.erase(mObjects.begin() + index);
+	}
+}
+
+bool QuadTree::PushItemDown(int index)
+{
+	if(InsertInChild(mObjects[index]))
+	{
+		RemoveItem(index);
+		return true;
 	}
 
-	else if (top == true && bottom == false)
+	else return false;
+}
+
+bool QuadTree::ContainsRect(sf::FloatRect rect)
+{
+	return mBounds.intersects(rect);
+}
+
+bool QuadTree::InsertInChild(Object::Ptr object)
+{
+	if (!IsPartitioned)
 	{
-		//Południe
-		if (right == true && left == true)
-		{
-			return IntersectsType::None;
-		}
-		else if (right == true && left == false)
-		{
-			return IntersectsType::SouthEast;
-		}
-		else if (right == false && left == true)
-		{
-			return IntersectsType::SouthWest;
-		}
-	}
-	else if (top == false && bottom == true)
-	{
-		if (right == true && left == true)
-		{
-			return IntersectsType::None;
-		}
-		else if (right == true && left == false)
-		{
-			return IntersectsType::NorthEast;
-		}
-		else if (right == false && left == true)
-		{
-			return IntersectsType::NorthWest;
-		}
+		return false;
 	}
 	else
 	{
-		return IntersectsType::None;
-	}
-}
-
-QuadTree::ObjectsQuadTree QuadTree::getElement(sf::FloatRect rect)
-{
-	return find(this, rect)->mObjects;
-}
-
-QuadTree * QuadTree::find(QuadTree * root, sf::FloatRect & rect)
-{
-	if (root->isNodeTree() == true)
-	{
-		auto type = root->intersects(rect);
-		if (type == IntersectsType::None)
+		bool end = false;
+		for (auto & node : mChildren)
 		{
-			return root;
+			if (node->ContainsRect(object->getBoundingBox()) == true)
+			{
+				node->Insert(object);
+				end = true;
+			}
 		}
-		else
-		{
-			return find(root->mChildren[static_cast<int>(type)].get(), rect);
-		}
-	}
-	else
-	{
-		return root;
+		return end;
 	}
 }
 
@@ -169,3 +107,4 @@ void QuadTree::draw(sf::RenderTarget & target, sf::RenderStates states) const
 		}
 	}
 }
+
