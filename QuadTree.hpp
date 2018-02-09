@@ -36,6 +36,7 @@ public:
 	bool PushItemDown(int index);
 	bool ContainsRect(sf::FloatRect rect);
 	bool InsertInChild(Object::Ptr object);
+	IntersectsType ContainsPatition(sf::FloatRect rect);
 
 	std::vector<QuadTree*> & mListNode;
 	sf::RectangleShape rectangle;

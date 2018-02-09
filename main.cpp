@@ -6,28 +6,22 @@
 int main()
 {
 
+	std::random_device r;
+	std::default_random_engine e1(r());
 	std::vector<QuadTree*> mNodeList;
 
 	QuadTree Quad(sf::FloatRect(0, 0, 800, 600), mNodeList);
-	Quad.Insert(std::make_shared<Object>(sf::Vector2f(5, 5), sf::Vector2f(5, 5)));
-	Quad.Insert(std::make_shared<Object>(sf::Vector2f(20, 20), sf::Vector2f(5, 5)));
-	Quad.Insert(std::make_shared<Object>(sf::Vector2f(46, 50), sf::Vector2f(5, 5)));
-	Quad.Insert(std::make_shared<Object>(sf::Vector2f(46, 40), sf::Vector2f(5, 5)));
+	sf::Clock clock;
+	for (int i = 0; i < 10; i++)
+	{
+		std::uniform_int_distribution<int> uniform_dist_a(1, 795);
+		std::uniform_int_distribution<int> uniform_dist_b(1, 595);
+		int x = uniform_dist_a(e1);
+		int y = uniform_dist_b(e1);
 
-
-	std::cout << Quad.mObjects.size() << "\n";
-	std::cout << "Quad [0]\n";
-	std::cout << Quad.mChildren[0]->mObjects.size() << "\n";
-	std::cout << "Quad [0][0]\n";
-	//std::cout << Quad.mChildren[0]->mChildren[0]->mObjects.size() << "\n";
-	//std::cout << "Quad [0][0][0]\n";
-	//std::cout << Quad.mChildren[0]->mChildren[0]->mChildren[0]->mObjects.size() << "\n";
-	//std::cout << "Quad [0][0][0][0]\n";
-	//std::cout << Quad.mChildren[0]->mChildren[0]->mChildren[0]->mChildren[0]->mObjects.size() << "\n";
-
-
-
-
+		Quad.Insert(std::make_shared<Object>(sf::Vector2f(x, y), sf::Vector2f(5, 5)));
+	}
+	std::cout << clock.getElapsedTime().asSeconds() << "\n";
 	sf::RenderWindow window(sf::VideoMode(800, 600), "QuadTree Borysiak");
 	window.setFramerateLimit(60);
 	while (window.isOpen())
