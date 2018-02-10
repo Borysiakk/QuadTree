@@ -1,6 +1,6 @@
 ﻿#include "QuadTree.hpp"
 #include <iostream>
-
+#include <functional>
 QuadTree::QuadTree(sf::FloatRect Bounds, std::vector<QuadTree*> & ListNode) :mBounds(Bounds), mListNode(ListNode), IsPartitioned(false)
 {
 	rectangle.setPosition(mBounds.left, mBounds.top);
@@ -16,11 +16,17 @@ void QuadTree::Insert(Object::Ptr object)
 	if (!InsertInChild(object))
 	{
 		mObjects.push_back(object);
-		if (!IsPartitioned && mObjects.size() > 3)
+		if (!IsPartitioned && mObjects.size() >= 2)
 		{
 			Partition();
 		}
 	}
+}
+
+QuadTree::ObjectsQuadTree QuadTree::GetItems(sf::Vector2f Point)
+{
+
+	return ObjectsQuadTree();
 }
 
 void QuadTree::Partition()
@@ -37,8 +43,7 @@ void QuadTree::Partition()
 
 	IsPartitioned = true;
 
-	int i = 0;
-	while (i < mObjects.size())
+	for (int i = 0; i < mObjects.size();)
 	{
 		if (!PushItemDown(i))
 		{
@@ -62,7 +67,7 @@ void QuadTree::PushItemUp(int index)
 
 bool QuadTree::PushItemDown(int index)
 {
-	if(InsertInChild(mObjects[index]))
+	if (InsertInChild(mObjects[index]))
 	{
 		RemoveItem(index);
 		return true;
@@ -71,9 +76,9 @@ bool QuadTree::PushItemDown(int index)
 	else return false;
 }
 
-bool QuadTree::ContainsRect(sf::FloatRect rect)
+QuadTree::ObjectsQuadTree QuadTree::NodeAllObject()
 {
-	return mBounds.intersects(rect);
+	return mObjects;
 }
 
 bool QuadTree::InsertInChild(Object::Ptr object)
@@ -87,6 +92,11 @@ bool QuadTree::InsertInChild(Object::Ptr object)
 	else return false;
 
 	return true;
+}
+
+bool QuadTree::ContainsRect(sf::FloatRect rectangle)
+{
+	return mBounds.intersects(rectangle);
 }
 
 IntersectsType QuadTree::ContainsPatition(sf::FloatRect rect)
@@ -140,6 +150,36 @@ IntersectsType QuadTree::ContainsPatition(sf::FloatRect rect)
 		return IntersectsType::None;
 	}
 }
+
+void QuadTree::GetItems(sf::FloatRect rectangle, ObjectsQuadTree & vObject)
+{
+	if (ContainsRect(rectangle))
+	{
+		for (auto & obj : mObjects)
+		{
+			if (rectangle.intersects(obj->getBoundingBox()))vObject.push_back(obj);
+		}
+	}
+	if (IsPartitioned)
+	{
+		auto type = ContainsPatition(rectangle);
+		if (type == IntersectsType::None)
+		{
+			for (auto & node : mChildren)
+			{
+				if (node->ContainsRect(rectangle))
+				{
+					node->GetItems(rectangle, vObject);
+				}
+			}
+		}
+		else
+		{
+			mChildren[static_cast<int>(type)]->GetItems(rectangle, vObject);
+		}
+	}
+}
+
 
 void QuadTree::draw(sf::RenderTarget & target, sf::RenderStates states) const
 {

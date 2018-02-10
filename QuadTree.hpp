@@ -9,11 +9,12 @@
 
 enum class IntersectsType :int
 {
-	None      = -1,
+	None      = -2,
+	Different = -1,
 	NorthWest =  0,							  	 									
 	NorthEast =  1,																
 	SouthWest =  2,																	
-	SouthEast =  3,																	
+	SouthEast =  3,		
 };
 
 class QuadTree:public sf::Drawable
@@ -26,17 +27,21 @@ public:
 
 	QuadTree(sf::FloatRect Bounds,std::vector<QuadTree*> & ListNode);
 	void Insert(Object::Ptr object);
-//protected:
+	void GetItems(sf::FloatRect rectangle,ObjectsQuadTree & vObject);
+	ObjectsQuadTree GetItems(sf::Vector2f point);
+protected:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-//private:
-
+private:
 	void Partition();
 	void RemoveItem(int index);
 	void PushItemUp(int index);
 	bool PushItemDown(int index);
-	bool ContainsRect(sf::FloatRect rect);
+	ObjectsQuadTree NodeAllObject();
 	bool InsertInChild(Object::Ptr object);
+	bool ContainsRect(sf::FloatRect rectangle);
 	IntersectsType ContainsPatition(sf::FloatRect rect);
+
+	
 
 	std::vector<QuadTree*> & mListNode;
 	sf::RectangleShape rectangle;
