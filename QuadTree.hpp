@@ -41,8 +41,6 @@ private:
 	bool ContainsRect(sf::FloatRect rectangle);
 	IntersectsType ContainsPatition(sf::FloatRect rect);
 
-	
-
 	std::vector<QuadTree*> & mListNode;
 	sf::RectangleShape rectangle;
 	ObjectsQuadTree mObjects;

@@ -1,6 +1,7 @@
 ﻿#include "QuadTree.hpp"
 #include <iostream>
 #include <functional>
+
 QuadTree::QuadTree(sf::FloatRect Bounds, std::vector<QuadTree*> & ListNode) :mBounds(Bounds), mListNode(ListNode), IsPartitioned(false)
 {
 	rectangle.setPosition(mBounds.left, mBounds.top);
@@ -155,10 +156,7 @@ void QuadTree::GetItems(sf::FloatRect rectangle, ObjectsQuadTree & vObject)
 {
 	if (ContainsRect(rectangle))
 	{
-		for (auto & obj : mObjects)
-		{
-			if (rectangle.intersects(obj->getBoundingBox()))vObject.push_back(obj);
-		}
+		std::copy_if(mObjects.begin(), mObjects.end(), std::back_inserter(vObject), [&rectangle](Object::Ptr Obj) {return rectangle.intersects(Obj->getBoundingBox()); });
 	}
 	if (IsPartitioned)
 	{
